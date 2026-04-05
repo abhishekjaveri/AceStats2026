@@ -677,21 +677,40 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
   <div class="ph"><div class="ph-left"><div class="title">Data & Backup</div><div class="sub">Export, restore and manage your data</div></div></div>
   <div class="g2">
     <div>
+      <!-- JSON BACKUP — primary, complete -->
+      <div class="tbl-wrap" style="padding:20px;margin-bottom:14px;border-top:2px solid var(--green)">
+        <div class="tbl-title" style="margin-bottom:6px">💾 Full JSON Backup <span style="font-size:10px;background:var(--green-dim);color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px">Recommended</span></div>
+        <p style="font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.7">Complete backup of <strong style="color:var(--text)">everything</strong> — matches, performances, players, raw scorecards, opponent data, logos, point system. Use this to move between devices or as a safe backup.</p>
+        <button class="btn btn-primary" onclick="exportJSON()">⬇ Download JSON Backup</button>
+        <div id="json-export-status" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+      </div>
       <div class="tbl-wrap" style="padding:20px;margin-bottom:14px">
-        <div class="tbl-title" style="margin-bottom:6px">📥 Full Season Export</div>
-        <p style="font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.7">One file with <strong style="color:var(--text)">everything</strong> — matches, player performances per match, aliases, and squad. Import this file to rebuild the entire database.</p>
-        <button class="btn btn-primary" onclick="exportFullCSV()">⬇ Download Full Backup CSV</button>
+        <div class="tbl-title" style="margin-bottom:6px">📂 Restore from JSON</div>
+        <p style="font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.7">Upload a JSON backup file to fully restore all data on this device. <strong style="color:var(--orange)">Replaces all current data.</strong></p>
+        <div class="drop-zone" onclick="document.getElementById('json-restore-input').click()" style="margin-bottom:10px">
+          <div id="json-restore-drop-label" style="font-size:12px;color:var(--muted)">Click to upload JSON backup</div>
+          <div id="json-restore-file-name" style="display:none;font-size:12.5px;color:var(--green);font-weight:500"></div>
+        </div>
+        <input type="file" id="json-restore-input" accept=".json" style="display:none" onchange="handleJSONRestoreUpload(event)">
+        <button class="btn btn-primary" onclick="restoreFromJSON()">Restore from JSON</button>
+        <div id="json-restore-status" style="margin-top:10px;font-size:12px"></div>
+      </div>
+      <!-- CSV BACKUP — secondary -->
+      <div class="tbl-wrap" style="padding:20px;margin-bottom:14px">
+        <div class="tbl-title" style="margin-bottom:6px">📥 CSV Export <span style="font-size:10px;background:var(--s3);color:var(--muted);padding:2px 7px;border-radius:10px;margin-left:6px">For GitHub Pages sync</span></div>
+        <p style="font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.7">Export as CSV to upload to GitHub as <code style="background:var(--s3);padding:1px 5px;border-radius:3px">data.csv</code> for cross-device viewing. Use JSON backup for full data safety.</p>
+        <button class="btn btn-secondary" onclick="exportFullCSV()">⬇ Download CSV</button>
         <div id="export-status" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
       </div>
       <div class="tbl-wrap" style="padding:20px">
-        <div class="tbl-title" style="margin-bottom:6px">📤 Restore from Backup</div>
+        <div class="tbl-title" style="margin-bottom:6px">📤 Restore from CSV</div>
         <p style="font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.7">Upload a previously exported CSV. Merges with existing data — duplicates are skipped.</p>
         <div class="drop-zone" onclick="document.getElementById('restore-input').click()" style="margin-bottom:10px">
           <div id="restore-drop-label" style="font-size:12px;color:var(--muted)">Click to upload backup CSV</div>
           <div id="restore-file-name" style="display:none;font-size:12.5px;color:var(--green);font-weight:500"></div>
         </div>
         <input type="file" id="restore-input" accept=".csv" style="display:none" onchange="handleRestoreUpload(event)">
-        <button class="btn btn-primary" onclick="restoreFromCSV()">Restore from CSV</button>
+        <button class="btn btn-secondary" onclick="restoreFromCSV()">Restore from CSV</button>
         <div id="restore-status" style="margin-top:10px;font-size:12px"></div>
       </div>
     </div>
@@ -1116,6 +1135,8 @@ const CSV_DATA_URL  = 'https://abhishekjaveri.github.io/AceStats2026/data.csv';
 const WORKER_URL    = '';             // Paste your Cloudflare Worker URL here once deployed e.g. 'https://ace-cc-proxy.yourname.workers.dev'
 const GS_CLIENT_ID  = '';   // Google OAuth Client ID  (leave empty until ready)
 const ADMIN_PIN     = '0811'; // PIN for admin access (used when GS_CLIENT_ID is empty)
+let gsToken = null;   // Google ID token (set after login)
+let isAdmin  = false; // True when logged in as owner
 // ────────────────────────────────────────────────────────────────────────────
 
 // ============================================================
@@ -3152,20 +3173,139 @@ function renderDataExport(){
 
 function exportFullCSV(){
   const now=new Date().toISOString().split('T')[0];
-  const lines=['# ACE CC Cricket Stats — Full Season Export','# Exported: '+now,'# Contains: matches + per-match player performances + aliases + squad',''];
+  const lines=['# ACE CC Cricket Stats — Full Season Export','# Exported: '+now,'# Contains: matches, performances, players, aliases, points, opponent data, seasons',''];
+
+  // ── MATCHES ──────────────────────────────────────────────────────────────
   lines.push('MATCHES','match_id,date,opponent,venue,format,toss_won,toss_decision,result,our_score,their_score,video_link,match_url,source_url,tournament,season');
   state.matches.forEach(m=>lines.push([m.id,m.date,m.opponent,m.venue||'',m.format||'T20',m.toss_won||'',m.toss_decision||'',m.result,m.our_score||'',m.their_score||'',m.video_link||'',m.match_url||'',m.source_url||'',m.tournament||'',m.season||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')));
+
+  // ── PERFORMANCES ─────────────────────────────────────────────────────────
   lines.push('','PERFORMANCES','match_id,player,runs,balls,fours,sixes,out,wickets,overs,runs_given,wides,noballs,maidens,catches,runouts,stumpings,duck,unassisted_wkts,dismissal_type');
   state.performances.forEach(p=>lines.push([p.match_id,p.player,p.runs||0,p.balls||0,p.fours||0,p.sixes||0,p.out||0,p.wickets||0,p.overs||0,p.runs_given||0,p.wides||0,p.noballs||0,p.maidens||0,p.catches||0,p.runouts||0,p.stumpings||0,p.duck||0,p.unassisted_wkts||0,p.dismissal_type||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')));
-  if(Object.keys(state.aliases||{}).length){lines.push('','ALIASES','alias,canonical');Object.entries(state.aliases).forEach(([a,c])=>lines.push(`"${a}","${c}"`));}
-  if(Object.keys(state.teamAliases||{}).length){lines.push('','TEAM_ALIASES','alias,canonical');Object.entries(state.teamAliases).forEach(([a,c])=>lines.push(`"${a}","${c}"`));}
+
+  // ── PLAYERS ───────────────────────────────────────────────────────────────
   lines.push('','PLAYERS','name,role,wk,bat,bat_style,bowl,jersey_name,jersey_num,jersey_size,sleeves,track_size,initials,phone,email');
-  state.players.forEach(p=>lines.push([p.name,p.role||'',p.wk||'no',p.bat||'Right-hand',p.bat_style||'',p.bowl||'',p.jersey_name||'',p.jersey_num||'',p.jersey_size||'',p.sleeves||'',p.track_size||'',p.initials||'',p.phone||'',p.email||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')));;
+  state.players.forEach(p=>lines.push([p.name,p.role||'',p.wk||'no',p.bat||'Right-hand',p.bat_style||'',p.bowl||'',p.jersey_name||'',p.jersey_num||'',p.jersey_size||'',p.sleeves||'',p.track_size||'',p.initials||'',p.phone||'',p.email||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')));
+
+  // ── ALIASES ───────────────────────────────────────────────────────────────
+  if(Object.keys(state.aliases||{}).length){lines.push('','ALIASES','alias,canonical');Object.entries(state.aliases).forEach(([a,c])=>lines.push(`"${String(a).replace(/"/g,'""')}","${String(c).replace(/"/g,'""')}"`))}
+  if(Object.keys(state.teamAliases||{}).length){lines.push('','TEAM_ALIASES','alias,canonical');Object.entries(state.teamAliases).forEach(([a,c])=>lines.push(`"${String(a).replace(/"/g,'""')}","${String(c).replace(/"/g,'""')}"`))}
+
+  // ── POINTS SYSTEM ────────────────────────────────────────────────────────
+  const pts=state.points||{};
+  lines.push('','POINTS','key,value');
+  Object.entries(pts).forEach(([k,v])=>lines.push(`"${k}","${v}"`));
+
+  // ── SEASONS ───────────────────────────────────────────────────────────────
+  if((state.seasons||[]).length){lines.push('','SEASONS','season');state.seasons.forEach(s=>lines.push(`"${String(s).replace(/"/g,'""')}"`))}
+
+  // ── OPPONENT PLAYERS ──────────────────────────────────────────────────────
+  if((state.opponentPlayers||[]).length){
+    lines.push('','OPPONENT_PLAYERS','id,name,team,bat_hand,bowl_style,wk,role');
+    state.opponentPlayers.forEach(p=>lines.push([p.id||p.name,p.name,p.team||'',p.bat_hand||'',p.bowl_style||'',p.wk||'no',p.role||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')));
+  }
+
+  // ── OPPONENT PERFORMANCES ─────────────────────────────────────────────────
+  if((state.opponentPerfs||[]).length){
+    lines.push('','OPPONENT_PERFS','match_id,team,player,type,runs,balls,fours,sixes,dismissal_type,bowler,fielder,unassisted,bat_hand,overs,maidens,runs_given,wickets,wides,noballs,economy');
+    state.opponentPerfs.forEach(p=>lines.push([p.match_id,p.team||'',p.player,p.type||'bat',p.runs||0,p.balls||0,p.fours||0,p.sixes||0,p.dismissal_type||'',p.bowler||'',p.fielder||'',p.unassisted||0,p.bat_hand||'',p.overs||0,p.maidens||0,p.runs_given||0,p.wickets||0,p.wides||0,p.noballs||0,p.economy||0].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')));
+  }
+
+  // ── FULL SCORECARDS (JSON blob — preserves opponent batting/bowling detail) ──
+  if(state.fullScorecards&&Object.keys(state.fullScorecards).length){
+    lines.push('','FULL_SCORECARDS','match_id,json');
+    Object.entries(state.fullScorecards).forEach(([id,sc])=>{
+      const json=JSON.stringify(sc).replace(/"/g,'""');
+      lines.push(`"${id}","${json}"`);
+    });
+  }
+
+  // ── RAW SOURCES (scorecard text — large, skip PDFs to keep file manageable) ─
+  if(state.rawSources&&Object.keys(state.rawSources).length){
+    lines.push('','RAW_SOURCES','match_id,source,saved');
+    Object.entries(state.rawSources).forEach(([id,raw])=>{
+      if(!raw||raw.pdf)return; // skip PDF blobs — too large for CSV
+      const src=String(raw.innings1||raw.source||'').replace(/"/g,'""').replace(/\n/g,'\\n');
+      lines.push(`"${id}","${src}","${raw.saved||''}"`);
+    });
+  }
+
   downloadCSV(lines.join('\n'),'ACE_CC_Full_Backup_'+now+'.csv');
-  document.getElementById('export-status').innerHTML='<span style="color:var(--green)">✓ Exported '+state.matches.length+' matches, '+state.performances.length+' performances</span>';
+  document.getElementById('export-status').innerHTML='<span style="color:var(--green)">✓ Exported '+state.matches.length+' matches, '+state.performances.length+' performances, '+(state.opponentPerfs||[]).length+' opp. perfs</span>';
+}
+  lines.push('','PLAYERS','name,role,wk,bat,bat_style,bowl,jersey_name,jersey_num,jersey_size,sleeves,track_size,initials,phone,email');
+  state.players.forEach(p=>lines.push([p.name,p.role||'',p.wk||'no',p.bat||'Right-hand',p.bat_style||'',p.bowl||'',p.jersey_name||'',p.jersey_num||'',p.jersey_size||'',p.sleeves||'',p.track_size||'',p.initials||'',p.phone||'',p.email||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')))
+
+function exportJSON(){
+  // Export complete state as JSON — includes everything including logos and raw sources
+  const backup = {
+    _version: 1,
+    _exported: new Date().toISOString(),
+    _matches: state.matches.length,
+    _performances: state.performances.length,
+    ...state
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], {type:'application/json;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ACE_CC_Backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  document.getElementById('json-export-status').innerHTML =
+    `<span style="color:var(--green)">✓ Exported ${state.matches.length} matches, ${state.performances.length} performances, ${state.players.length} players</span>`;
 }
 
-function downloadCSV(content,filename){const blob=new Blob([content],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+let jsonRestoreData = null;
+function handleJSONRestoreUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    jsonRestoreData = e.target.result;
+    document.getElementById('json-restore-file-name').textContent = '✓ ' + file.name;
+    document.getElementById('json-restore-file-name').style.display = 'block';
+    document.getElementById('json-restore-drop-label').style.display = 'none';
+  };
+  reader.readAsText(file);
+}
+
+function restoreFromJSON(){
+  if(!jsonRestoreData){ toast('Upload a JSON backup file first','error'); return; }
+  if(!confirm('This will replace ALL current data with the backup. Continue?')) return;
+  try{
+    const backup = JSON.parse(jsonRestoreData);
+    // Strip metadata keys, keep everything else
+    const {_version, _exported, _matches, _performances, ...restored} = backup;
+    // Merge into state — preserve API key and logos from current device if not in backup
+    const newState = {
+      ...state,        // current device settings as base
+      ...restored,     // backup overwrites everything
+      // Always keep these from backup if present, else keep current
+      apiKey:    restored.apiKey    || state.apiKey,
+      teamLogo:  restored.teamLogo  || state.teamLogo,
+      tourneyLogos: restored.tourneyLogos || state.tourneyLogos || {},
+    };
+    Object.assign(state, newState);
+    saveState();
+    renderDashboard();
+    populateSeasonFilter();
+    populateMatchFilters();
+    const m = state.matches.length, p = state.performances.length, pl = state.players.length;
+    document.getElementById('json-restore-status').innerHTML =
+      `<span style="color:var(--green)">✓ Restored: ${m} matches, ${p} performances, ${pl} players</span>`;
+    toast(`✓ Restored ${m} matches, ${p} performances`, 'success');
+    jsonRestoreData = null;
+  } catch(e) {
+    document.getElementById('json-restore-status').innerHTML =
+      `<span style="color:var(--red)">✗ Error: ${esc(e.message)}</span>`;
+    toast('Restore failed: ' + e.message, 'error');
+  }
+}
+
+function downloadCSV(content,filename){
+const blob=new Blob([content],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
 let restoreCsvData=null;
 function handleRestoreUpload(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{restoreCsvData=e.target.result;document.getElementById('restore-file-name').textContent='✓ '+file.name;document.getElementById('restore-file-name').style.display='block';document.getElementById('restore-drop-label').style.display='none';};reader.readAsText(file);}
@@ -3528,8 +3668,7 @@ document.getElementById('src-cricheroes').style.color='var(--green)';
 // GOOGLE SHEETS SYNC
 // ============================================================
 // Paste your values here once you have them:
-let gsToken = null;   // Google ID token (set after login)
-let isAdmin  = false; // True when logged in as owner
+// Google Sheets auth (set after login)
 
 // Load data from Google Sheet (public read — no login needed)
 // ── Load from CSV file (primary — always works, no CORS issues) ──────────────
@@ -3553,56 +3692,80 @@ async function loadFromCSV() {
 function parseCSVIntoState(csvText) {
   const lines = csvText.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
   let section = null, headers = [];
-  const matches = [], perfs = [], players = [], aliases = {}, teamAliases = {};
+  const matches=[], perfs=[], players=[], aliases={}, teamAliases={};
+  const points={}, seasons=[], opponentPlayers=[], opponentPerfs=[];
+  const fullScorecards={}, rawSources={};
 
   for (const raw of lines) {
     const line = raw.trim();
     if (!line || line.startsWith('#')) continue;
     const up = line.toUpperCase();
-    if (up === 'MATCHES')      { section = 'matches';     headers = []; continue; }
-    if (up === 'PERFORMANCES') { section = 'perfs';        headers = []; continue; }
-    if (up === 'ALIASES')      { section = 'aliases';      headers = []; continue; }
-    if (up === 'TEAM_ALIASES') { section = 'teamaliases';  headers = []; continue; }
-    if (up === 'PLAYERS')      { section = 'players';      headers = []; continue; }
+    if (up==='MATCHES')           { section='matches';          headers=[]; continue; }
+    if (up==='PERFORMANCES')      { section='perfs';            headers=[]; continue; }
+    if (up==='ALIASES')           { section='aliases';          headers=[]; continue; }
+    if (up==='TEAM_ALIASES')      { section='teamaliases';      headers=[]; continue; }
+    if (up==='PLAYERS')           { section='players';          headers=[]; continue; }
+    if (up==='POINTS')            { section='points';           headers=[]; continue; }
+    if (up==='SEASONS')           { section='seasons';          headers=[]; continue; }
+    if (up==='OPPONENT_PLAYERS')  { section='opponentplayers';  headers=[]; continue; }
+    if (up==='OPPONENT_PERFS')    { section='opponentperfs';    headers=[]; continue; }
+    if (up==='FULL_SCORECARDS')   { section='fullscorecards';   headers=[]; continue; }
+    if (up==='RAW_SOURCES')       { section='rawsources';       headers=[]; continue; }
+
     const cols = parseCSVLine(line);
     if (!headers.length) { headers = cols.map(h => h.toLowerCase().trim().replace(/"/g,'')); continue; }
     const row = {}; headers.forEach((h,i) => row[h] = (cols[i]||'').replace(/^"|"$/g,''));
 
-    if (section === 'matches' && row.match_id) {
-      matches.push({
-        id: row.match_id, date: row.date||'', opponent: row.opponent||'',
-        venue: row.venue||'', format: row.format||'T20',
-        toss_won: row.toss_won||'unknown', toss_decision: row.toss_decision||'bat',
-        result: row.result||'nr', our_score: row.our_score||'', their_score: row.their_score||'',
-        video_link: row.video_link||'', match_url: row.match_url||'',
-        source_url: row.source_url||'', tournament: row.tournament||'', season: row.season||''
-      });
+    if (section==='matches' && row.match_id) {
+      matches.push({ id:row.match_id, date:row.date||'', opponent:row.opponent||'',
+        venue:row.venue||'', format:row.format||'T20', toss_won:row.toss_won||'unknown',
+        toss_decision:row.toss_decision||'bat', result:row.result||'nr',
+        our_score:row.our_score||'', their_score:row.their_score||'',
+        video_link:row.video_link||'', match_url:row.match_url||'',
+        source_url:row.source_url||'', tournament:row.tournament||'', season:row.season||'' });
     }
-    if (section === 'perfs' && row.match_id && row.player) {
-      perfs.push({
-        match_id: row.match_id, player: row.player,
-        runs: +row.runs||0, balls: +row.balls||0, fours: +row.fours||0, sixes: +row.sixes||0,
-        out: +row.out||0, wickets: +row.wickets||0, overs: +row.overs||0,
-        runs_given: +row.runs_given||0, wides: +row.wides||0, noballs: +row.noballs||0,
-        maidens: +row.maidens||0, catches: +row.catches||0, runouts: +row.runouts||0,
-        stumpings: +row.stumpings||0, duck: +row.duck||0,
-        unassisted_wkts: +row.unassisted_wkts||0, dismissal_type: row.dismissal_type||''
-      });
+    if (section==='perfs' && row.match_id && row.player) {
+      perfs.push({ match_id:row.match_id, player:row.player,
+        runs:+row.runs||0, balls:+row.balls||0, fours:+row.fours||0, sixes:+row.sixes||0,
+        out:+row.out||0, wickets:+row.wickets||0, overs:+row.overs||0,
+        runs_given:+row.runs_given||0, wides:+row.wides||0, noballs:+row.noballs||0,
+        maidens:+row.maidens||0, catches:+row.catches||0, runouts:+row.runouts||0,
+        stumpings:+row.stumpings||0, duck:+row.duck||0,
+        unassisted_wkts:+row.unassisted_wkts||0, dismissal_type:row.dismissal_type||'' });
     }
-    if (section === 'aliases' && row.alias && row.canonical) aliases[row.alias] = row.canonical;
-    if (section === 'teamaliases' && row.alias && row.canonical) teamAliases[row.alias] = row.canonical;
-    if (section === 'players' && row.name) {
-      players.push({
-        id: row.name, name: row.name, role: row.role||'All-rounder',
-        wk: row.wk||'no', bat: row.bat||'Right-hand', bat_style: row.bat_style||'',
-        bowl: row.bowl||'', jersey_name: row.jersey_name||'', jersey_num: row.jersey_num||'',
-        jersey_size: row.jersey_size||'', sleeves: row.sleeves||'', track_size: row.track_size||'',
-        initials: row.initials||'', phone: row.phone||'', email: row.email||''
-      });
+    if (section==='aliases' && row.alias && row.canonical) aliases[row.alias]=row.canonical;
+    if (section==='teamaliases' && row.alias && row.canonical) teamAliases[row.alias]=row.canonical;
+    if (section==='players' && row.name) {
+      players.push({ id:row.name, name:row.name, role:row.role||'All-rounder',
+        wk:row.wk||'no', bat:row.bat||'Right-hand', bat_style:row.bat_style||'',
+        bowl:row.bowl||'', jersey_name:row.jersey_name||'', jersey_num:row.jersey_num||'',
+        jersey_size:row.jersey_size||'', sleeves:row.sleeves||'', track_size:row.track_size||'',
+        initials:row.initials||'', phone:row.phone||'', email:row.email||'' });
+    }
+    if (section==='points' && row.key) points[row.key]=isNaN(row.value)?row.value:+row.value;
+    if (section==='seasons' && row.season) seasons.push(row.season);
+    if (section==='opponentplayers' && row.name) {
+      opponentPlayers.push({ id:row.id||row.name, name:row.name, team:row.team||'',
+        bat_hand:row.bat_hand||'', bowl_style:row.bowl_style||'', wk:row.wk||'no', role:row.role||'' });
+    }
+    if (section==='opponentperfs' && row.match_id && row.player) {
+      opponentPerfs.push({ match_id:row.match_id, team:row.team||'', player:row.player,
+        type:row.type||'bat', runs:+row.runs||0, balls:+row.balls||0,
+        fours:+row.fours||0, sixes:+row.sixes||0, dismissal_type:row.dismissal_type||'',
+        bowler:row.bowler||'', fielder:row.fielder||'', unassisted:+row.unassisted||0,
+        bat_hand:row.bat_hand||'', overs:+row.overs||0, maidens:+row.maidens||0,
+        runs_given:+row.runs_given||0, wickets:+row.wickets||0,
+        wides:+row.wides||0, noballs:+row.noballs||0, economy:+row.economy||0 });
+    }
+    if (section==='fullscorecards' && row.match_id && row.json) {
+      try { fullScorecards[row.match_id] = JSON.parse(row.json); } catch(e) {}
+    }
+    if (section==='rawsources' && row.match_id && row.source) {
+      rawSources[row.match_id] = { innings1: row.source.replace(/\\n/g,'\n'), saved: row.saved||'' };
     }
   }
-  console.log('parseCSVIntoState — parsed matches:', matches.length, 'perfs:', perfs.length, 'players:', players.length);
-  return { matches, perfs, players, aliases, teamAliases };
+  console.log('parseCSVIntoState — matches:', matches.length, 'perfs:', perfs.length, 'players:', players.length, 'oppPerfs:', opponentPerfs.length);
+  return { matches, perfs, players, aliases, teamAliases, points, seasons, opponentPlayers, opponentPerfs, fullScorecards, rawSources };
 }
 
 async function initFromSheet() {
@@ -3667,17 +3830,22 @@ async function initFromSheet() {
     }
   }
 
-  // FALLBACK: load from CSV file in GitHub repo
   if (!loaded) {
     const csvText = await loadFromCSV();
     if (csvText) {
-      const parsed = parseCSVIntoState(csvText);
-      if (parsed.matches.length > 0) {
-        state.matches      = parsed.matches;
-        state.performances = parsed.perfs;
-        if (parsed.players.length)                  state.players     = parsed.players;
-        if (Object.keys(parsed.aliases).length)     state.aliases     = parsed.aliases;
-        if (Object.keys(parsed.teamAliases).length) state.teamAliases = parsed.teamAliases;
+      const p = parseCSVIntoState(csvText);
+      if (p.matches.length > 0) {
+        state.matches      = p.matches;
+        state.performances = p.perfs;
+        if (p.players.length)                     state.players       = p.players;
+        if (Object.keys(p.aliases).length)        state.aliases       = p.aliases;
+        if (Object.keys(p.teamAliases).length)    state.teamAliases   = p.teamAliases;
+        if (Object.keys(p.points).length)         state.points        = {...state.points, ...p.points};
+        if (p.seasons.length)                     state.seasons       = p.seasons;
+        if (p.opponentPlayers.length)             state.opponentPlayers = p.opponentPlayers;
+        if (p.opponentPerfs.length)               state.opponentPerfs   = p.opponentPerfs;
+        if (Object.keys(p.fullScorecards).length) state.fullScorecards  = p.fullScorecards;
+        if (Object.keys(p.rawSources).length)     state.rawSources      = p.rawSources;
         loaded = true;
         console.log('✓ Loaded from CSV — matches:', state.matches.length, 'perfs:', state.performances.length);
       }
