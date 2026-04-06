@@ -178,28 +178,6 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
 .bowl-tag-opt:hover{border-color:var(--green);color:var(--text)}
 .bowl-tag-opt.selected{background:var(--green-dim);border-color:var(--green);color:var(--green);font-weight:600}
 .bowl-tag-active{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:11px;background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-weight:600}
-
-/* ── Zebra striping — subtle alternating rows ───────────────────── */
-tbody tr:nth-child(even) td{background:rgba(255,255,255,.04)}
-body.light-mode tbody tr:nth-child(even) td{background:rgba(0,0,0,.035)}
-tbody tr:hover td{background:rgba(255,255,255,.07)!important}
-body.light-mode tbody tr:hover td{background:rgba(0,0,0,.06)!important}
-/* Keep sticky first-cell background consistent with row */
-tbody tr:nth-child(even) td:first-child{background:var(--s1)!important}
-body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!important}
-
-/* ── Sticky header rows on key tables ───────────────────────────── */
-.sticky-header thead th{
-  position:sticky;top:0;z-index:3;
-  background:var(--s2)!important;
-  box-shadow:0 1px 0 var(--border);
-}
-.sticky-header thead th:first-child{z-index:4;left:0;position:sticky}
-.sticky-header tbody td:first-child{
-  position:sticky;left:0;z-index:2;
-  background:var(--s1);
-  box-shadow:2px 0 4px rgba(0,0,0,.1);
-}
 </style>
 </head>
 <body>
@@ -216,12 +194,6 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
   </button>
   <span style="color:var(--muted);flex:1;font-size:11px" id="sync-status">ACE CC Cricket Stats</span>
   <button onclick="initFromSheet()" title="Refresh data from Google Sheets" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 6px;border-radius:4px" id="refresh-btn">⟳</button>
-  <!-- Theme toggle -->
-  <div id="topbar-theme" style="display:flex;background:var(--s3);border:1px solid var(--border);border-radius:16px;padding:2px;gap:1px">
-    <button onclick="setThemeMode('auto')"  id="ttm-auto"  title="Auto (time-based)" style="border:none;border-radius:14px;padding:2px 8px;font-size:10px;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted)">Auto</button>
-    <button onclick="setThemeMode('light')" id="ttm-light" title="Light mode"         style="border:none;border-radius:14px;padding:2px 8px;font-size:11px;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted)">☀️</button>
-    <button onclick="setThemeMode('dark')"  id="ttm-dark"  title="Dark mode"          style="border:none;border-radius:14px;padding:2px 8px;font-size:11px;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted)">🌙</button>
-  </div>
   <button id="admin-login-btn" onclick="adminLogin()" class="btn btn-sm btn-ghost" style="gap:5px">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     Admin Login
@@ -382,8 +354,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-mvp">
   <div class="ph">
     <div class="ph-left"><div class="title">MVP Rankings</div><div class="sub" id="mvp-eligibility-note"></div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+    <div class="ph-right">
       <div class="tabs" id="mvp-sort-tabs">
         <div class="tab active" data-sort="total">Total Points</div>
         <div class="tab" data-sort="perMatch">Per Match</div>
@@ -410,7 +381,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
     </div>
   </div>
   <div class="tbl-wrap">
-    <table class="sticky-header">
+    <table>
       <thead><tr>
         <th>#</th><th>Player</th><th onclick="sortMVP('mvp')">MVP Pts</th>
         <th onclick="sortMVP('mvppm')" id="mvp-th-mvppm">Per Match ↓</th><th onclick="sortMVP('matches')">M</th>
@@ -435,8 +406,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-stats">
   <div class="ph">
     <div class="ph-left"><div class="title">Player Stats</div><div class="sub">Full season breakdown with haul analysis</div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+    <div class="ph-right">
       <div class="tabs" id="stats-tabs">
         <div class="tab active" data-stab="all">All</div>
         <div class="tab" data-stab="batting">Batting</div>
@@ -471,7 +441,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
       <option value="10">Min 10 matches</option>
     </select>
   </div>
-  <div id="stats-all-wrap"><div class="tbl-wrap"><table class="sticky-header">
+  <div id="stats-all-wrap"><div class="tbl-wrap"><table>
     <thead><tr>
       <th onclick="sortStats('name')">Player</th><th onclick="sortStats('matches')">M</th>
       <th onclick="sortStats('runs')">Runs</th><th onclick="sortStats('bat_avg')">Avg</th>
@@ -527,8 +497,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-players">
   <div class="ph">
     <div class="ph-left"><div class="title">Squad</div><div class="sub">Click a player card to see full profile</div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button><button class="btn btn-primary admin-only" onclick="showModal('modal-manual')" style="display:none">+ Log Match</button></div>
+    <div class="ph-right"><button class="btn btn-primary admin-only" onclick="showModal('modal-manual')" style="display:none">+ Log Match</button></div>
   </div>
   <div id="players-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px"></div>
 </div>
@@ -537,8 +506,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-compare">
   <div class="ph">
     <div class="ph-left"><div class="title">Compare Players</div><div class="sub">Select 2–4 players to compare side by side</div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+    <div class="ph-right">
       <button class="btn btn-sm btn-ghost" onclick="clearCompare()">Clear</button>
       <button class="btn btn-sm btn-ghost" onclick="pdfCompare()">⬇ PDF</button>
     </div>
@@ -559,9 +527,6 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-import">
   <div class="ph">
     <div class="ph-left"><div class="title">Import Match</div><div class="sub">Add a new match scorecard</div></div>
-    <div class="ph-right">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
-    </div>
   </div>
   <div id="import-input-area">
     <div class="g2">
@@ -679,8 +644,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-matches">
   <div class="ph">
     <div class="ph-left"><div class="title">All Matches</div><div class="sub" id="matches-sub"></div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+    <div class="ph-right">
       <button class="btn btn-primary admin-only" style="display:none" onclick="showModal('modal-manual')">+ Log Match</button>
       <button class="btn btn-sm btn-ghost" onclick="pdfAllMatches()" title="All Matches PDF">⬇ PDF</button>
     </div>
@@ -754,12 +718,8 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-opponents">
   <div class="ph">
     <div class="ph-left"><div class="title">Opponents</div><div class="sub">Squad profiles and match stats for opposition teams</div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
-      <button class="btn btn-sm btn-ghost" id="parse-opp-btn" onclick="startOpponentParse()">🔄 Parse Missing Opponent Data</button>
-    </div>
     <div class="ph-right">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+      <button class="btn btn-sm btn-ghost" id="parse-opp-btn" onclick="startOpponentParse()">🔄 Parse Missing Opponent Data</button>
     </div>
   </div>
   <div id="parse-opp-status" style="display:none;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:12px"></div>
@@ -780,8 +740,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <!-- POINT SYSTEM (admin only) -->
 <div class="page" id="page-points">
   <div class="ph"><div class="ph-left"><div class="title">Point System</div><div class="sub">Edit MVP scoring formula</div></div>
-  <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button><button class="btn btn-secondary" onclick="resetPoints()">Reset Defaults</button><button class="btn btn-primary" onclick="savePoints()">Save Points</button></div></div>
+  <div class="ph-right"><button class="btn btn-secondary" onclick="resetPoints()">Reset Defaults</button><button class="btn btn-primary" onclick="savePoints()">Save Points</button></div></div>
   <div id="points-body"></div>
 </div>
 
@@ -794,8 +753,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <!-- SQUAD MANAGER -->
 <div class="page" id="page-squad">
   <div class="ph"><div class="ph-left"><div class="title">Squad Manager</div></div>
-  <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button><button class="btn btn-primary" onclick="addSquadPlayer()">+ Add Player</button></div></div>
+  <div class="ph-right"><button class="btn btn-primary" onclick="addSquadPlayer()">+ Add Player</button></div></div>
   <div id="squad-body"></div>
 </div>
 
@@ -803,8 +761,7 @@ body.light-mode tbody tr:nth-child(even) td:first-child{background:var(--s1)!imp
 <div class="page" id="page-tourney-squad">
   <div class="ph">
     <div class="ph-left"><div class="title">Tournament Squads</div><div class="sub">Build squads for tournaments and download jersey/track lists</div></div>
-    <div class="ph-right" style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm btn-ghost" onclick="navTo('dashboard')" title="Back to Dashboard" style="gap:5px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button><button class="btn btn-primary" onclick="openNewTourneySquad()">+ New Tournament Squad</button></div>
+    <div class="ph-right"><button class="btn btn-primary" onclick="openNewTourneySquad()">+ New Tournament Squad</button></div>
   </div>
   <div id="tourney-squad-body"></div>
 </div>
@@ -5295,8 +5252,6 @@ function deleteTeamAlias(a){
 // MVP CHART (feature #13)
 // ============================================================
 function renderMVPChart(){
-  // Only render when MVP page is active
-  if(!document.getElementById('page-mvp')?.classList.contains('active'))return;
   const chartEl=document.getElementById('mvp-chart-area');
   if(!chartEl)return;
   const filteredMatches=[...getFilteredMatches()].sort((a,b)=>a.date.localeCompare(b.date));
