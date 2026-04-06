@@ -281,10 +281,6 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
       Squad Manager
     </div>
-    <div class="ni admin-only" data-page="tourney-squad" style="display:none">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Tourney Squads
-    </div>
     <div class="ni admin-only" data-page="dataexport" style="display:none">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Data & Backup
@@ -325,25 +321,25 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
   <div class="g2">
     <div>
       <div class="tbl-wrap">
-        <div class="tbl-head"><span class="tbl-title" style="cursor:pointer" onclick="navTo('mvp')" title="Go to MVP Rankings">🏆 MVP Leaders <span style="font-size:10px;color:var(--green);margin-left:4px">→</span></span></div>
+        <div class="tbl-head"><span class="tbl-title">🏆 MVP Leaders</span></div>
         <div id="dash-mvp"></div>
       </div>
       <div class="tbl-wrap">
-        <div class="tbl-head"><span class="tbl-title" style="cursor:pointer" onclick="navTo('matches')" title="Go to All Matches">Recent Matches <span style="font-size:10px;color:var(--green);margin-left:4px">→</span></span></div>
+        <div class="tbl-head"><span class="tbl-title">Recent Matches</span></div>
         <div id="dash-recent"></div>
       </div>
     </div>
     <div>
       <div class="tbl-wrap" style="padding:16px">
-        <div class="tbl-title" style="margin-bottom:12px;cursor:pointer" onclick="navTo('stats');setTimeout(()=>{document.querySelector('#stats-tabs .tab[data-stab=batting]')?.click()},100)" title="Go to Batting Stats">Top Run Scorers <span style="font-size:10px;color:var(--green);margin-left:4px">→</span></div>
+        <div class="tbl-title" style="margin-bottom:12px">Top Run Scorers</div>
         <div class="bar-chart" id="dash-runs"></div>
       </div>
       <div class="tbl-wrap" style="padding:16px">
-        <div class="tbl-title" style="margin-bottom:12px;cursor:pointer" onclick="navTo('stats');setTimeout(()=>{document.querySelector('#stats-tabs .tab[data-stab=bowling]')?.click()},100)" title="Go to Bowling Stats">Top Wicket Takers <span style="font-size:10px;color:var(--green);margin-left:4px">→</span></div>
+        <div class="tbl-title" style="margin-bottom:12px">Top Wicket Takers</div>
         <div class="bar-chart" id="dash-wkts"></div>
       </div>
       <div class="tbl-wrap" style="padding:16px">
-        <div class="tbl-title" style="margin-bottom:12px;cursor:pointer" onclick="navTo('stats');setTimeout(()=>{document.querySelector('#stats-tabs .tab[data-stab=fielding]')?.click()},100)" title="Go to Fielding Stats">Top Catchers <span style="font-size:10px;color:var(--green);margin-left:4px">→</span></div>
+        <div class="tbl-title" style="margin-bottom:12px">Top Catchers</div>
         <div class="bar-chart" id="dash-catches"></div>
       </div>
     </div>
@@ -380,7 +376,12 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
       <input type="number" id="mvp-elig-min-m" min="0" max="50" placeholder="—" oninput="renderMVP()" style="width:46px;padding:3px 5px;font-size:12px">
     </div>
   </div>
-  <div class="tbl-wrap">
+  <div class="tbl-wrap" style="padding:16px;margin-bottom:14px">
+  <div class="tbl-head"><span class="tbl-title">📈 MoM Points Per Match — Over Season</span></div>
+  <div id="mvp-chart-area" style="min-height:120px;padding:8px"></div>
+</div>
+
+<div class="tbl-wrap">
     <table>
       <thead><tr>
         <th>#</th><th>Player</th><th onclick="sortMVP('mvp')">MVP Pts</th>
@@ -395,11 +396,6 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
       <tbody id="mvp-tbody"></tbody>
     </table>
   </div>
-</div>
-
-<div class="tbl-wrap" style="padding:16px;margin-top:14px">
-  <div class="tbl-head"><span class="tbl-title">📈 MoM Points Per Match — Over Season</span></div>
-  <div id="mvp-chart-area" style="min-height:120px;padding:8px"></div>
 </div>
 
 <!-- PLAYER STATS -->
@@ -497,7 +493,7 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
 <div class="page" id="page-players">
   <div class="ph">
     <div class="ph-left"><div class="title">Squad</div><div class="sub">Click a player card to see full profile</div></div>
-    <div class="ph-right"><button class="btn btn-primary admin-only" onclick="showModal('modal-manual')" style="display:none">+ Log Match</button></div>
+    <div class="ph-right"><button class="btn btn-primary" onclick="showModal('modal-manual')">+ Log Match</button></div>
   </div>
   <div id="players-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px"></div>
 </div>
@@ -755,41 +751,6 @@ kbd.kbd{background:var(--s3);border:1px solid var(--border);border-radius:3px;pa
   <div class="ph"><div class="ph-left"><div class="title">Squad Manager</div></div>
   <div class="ph-right"><button class="btn btn-primary" onclick="addSquadPlayer()">+ Add Player</button></div></div>
   <div id="squad-body"></div>
-</div>
-
-<!-- TOURNAMENT SQUAD -->
-<div class="page" id="page-tourney-squad">
-  <div class="ph">
-    <div class="ph-left"><div class="title">Tournament Squads</div><div class="sub">Build squads for tournaments and download jersey/track lists</div></div>
-    <div class="ph-right"><button class="btn btn-primary" onclick="openNewTourneySquad()">+ New Tournament Squad</button></div>
-  </div>
-  <div id="tourney-squad-body"></div>
-</div>
-
-<!-- NEW TOURNEY SQUAD MODAL -->
-<div class="overlay" id="modal-tourney-squad" onclick="if(event.target===this)closeModal('modal-tourney-squad')">
-  <div class="modal" style="max-width:820px">
-    <div class="modal-title" id="ts-modal-title">New Tournament Squad</div>
-    <div class="g2" style="gap:16px;margin-bottom:16px">
-      <div class="fg"><label>Tournament Name</label><input id="ts-name" placeholder="e.g. TSL Season 6"></div>
-      <div class="fg"><label>Date / Period</label><input id="ts-date" placeholder="e.g. Jan–Mar 2026"></div>
-    </div>
-    <div style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:12.5px;font-weight:600">Select Players <span id="ts-count" style="color:var(--muted);font-weight:400"></span></div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-sm btn-ghost" onclick="tsSelectAll()">Select All</button>
-          <button class="btn btn-sm btn-ghost" onclick="tsClearAll()">Clear</button>
-        </div>
-      </div>
-      <div id="ts-player-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:10px;background:var(--s2)"></div>
-    </div>
-    <div class="modal-footer" style="flex-wrap:wrap;gap:8px">
-      <button class="btn btn-secondary" onclick="closeModal('modal-tourney-squad')">Cancel</button>
-      <button class="btn btn-ghost" onclick="saveTourneySquad()">💾 Save Squad</button>
-      <button class="btn btn-primary" onclick="downloadJerseyList()">⬇ Download Jersey List (CSV)</button>
-    </div>
-  </div>
 </div>
 
 <!-- DATA & BACKUP -->
@@ -1324,8 +1285,6 @@ if(!state.fullScorecards)state.fullScorecards={};
 if(state.mvpDefaultPct===undefined)state.mvpDefaultPct=40;
 if(!state.opponentPlayers)state.opponentPlayers=[];
 if(!state.opponentPerfs)state.opponentPerfs=[];
-if(!state.tourneySquads)state.tourneySquads=[];
-if(!state.githubWorkerUrl)state.githubWorkerUrl='';
 if(!state.gs_webapp_url)state.gs_webapp_url=GS_WEBAPP_URL||'';
 
 // ============================================================
@@ -1466,7 +1425,6 @@ function renderPage(page){
   else if(page==='dataexport')renderDataExport();
   else if(page==='settings')renderSettings();
   else if(page==='compare'){renderPage_compare();}
-  else if(page==='tourney-squad'){renderPage_tourney_squad();}
 }
 
 // ============================================================
@@ -1907,7 +1865,6 @@ function showPlayerDetail(name){
       if(idx>=0){navTo('squad');setTimeout(()=>openPlayerEdit(idx),200);}
     };
     footer.insertBefore(editBtn,footer.firstChild);
-
   }
   showModal('modal-player');
 }
@@ -5684,15 +5641,6 @@ function updateThemeBtns() {
   // Also keep legacy theme-btn in sync
   const legacyBtn = document.getElementById('theme-btn');
   if (legacyBtn) legacyBtn.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
-  // Sync topbar buttons
-  ['auto','light','dark'].forEach(m => {
-    const btn = document.getElementById('ttm-' + m);
-    if (!btn) return;
-    const active = (state.themeMode||'auto') === m;
-    btn.style.background = active ? 'var(--green)' : 'transparent';
-    btn.style.color = active ? '#000' : 'var(--muted)';
-    btn.style.fontWeight = active ? '700' : '400';
-  });
 }
 
 // Auto-refresh theme every minute (for auto mode crossing 7am/7pm)
@@ -6058,288 +6006,6 @@ async function exportWithPhotosZip() {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast(`✓ ZIP downloaded — data.json + ${photoCount} photo${photoCount!==1?'s':''}`, 'success');
-}
-
-
-
-
-// F5: topbar theme sync handled in updateThemeBtns directly
-
-// ============================================================
-// FEATURE 6: Guard player edit to admin only
-// ============================================================
-function openPlayerEdit(i) {
-  if (!isAdmin) { toast('Admin login required to edit player details', 'error'); return; }
-  const p = state.players[i] || {};
-  document.getElementById('ped-idx').value = i;
-  document.getElementById('ped-name').value = p.name || '';
-  document.getElementById('ped-jersey-name').value = p.jersey_name || '';
-  document.getElementById('ped-initials').value = p.initials || '';
-  document.getElementById('ped-jersey-num').value = p.jersey_num || '';
-  document.getElementById('ped-role').value = p.role || 'All-rounder';
-  document.getElementById('ped-wk').value = p.wk || 'no';
-  document.getElementById('ped-bat').value = p.bat || 'Right-hand';
-  document.getElementById('ped-bat-style').value = p.bat_style || '';
-  document.getElementById('ped-bowl-hand').value = (p.bowl||'').split('|').find(t=>['Right','Left','Both'].includes(t))||'';
-  document.getElementById('ped-phone').value = p.phone || '';
-  document.getElementById('ped-email').value = p.email || '';
-  document.getElementById('ped-jersey-size').value = p.jersey_size || '';
-  document.getElementById('ped-sleeves').value = p.sleeves || '';
-  document.getElementById('ped-track-size').value = p.track_size || '';
-  initBowlTags(p.bowl || '');
-  const bh = document.getElementById('ped-bowl-hand');
-  if (bh) { bh.onchange = syncBowlHiddenInput; }
-  showModal('modal-player-edit');
-}
-
-// Guard addSquadPlayer
-function addSquadPlayer() {
-  if (!isAdmin) { toast('Admin login required', 'error'); return; }
-  const name = prompt('Player full name:');
-  if (!name || !name.trim()) return;
-  if (state.players.find(p => p.name === name.trim())) { toast('Player already in squad', 'error'); return; }
-  const idx = state.players.push({ id: name.trim(), name: name.trim(), role: 'All-rounder', bat: 'Right-hand' }) - 1;
-  saveState(); renderSquad();
-  setTimeout(() => openPlayerEdit(idx), 100);
-}
-
-// ============================================================
-// FEATURE 7: Enhanced Team Analysis
-// ============================================================
-function renderTeam() {
-  const m = getFilteredMatches(), s = getAllStatsFiltered();
-  if (!m.length) {
-    document.getElementById('team-body').innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Import matches to see team analysis</div></div>';
-    return;
-  }
-  const wins = m.filter(x => x.result === 'win').length;
-  const losses = m.filter(x => x.result === 'loss').length;
-  const ties = m.filter(x => x.result === 'tie').length;
-
-  // Aggregate stats
-  const totalRuns = s.reduce((t,p)=>t+p.runs,0);
-  const totalWkts = s.reduce((t,p)=>t+p.wickets,0);
-  const totalCatches = s.reduce((t,p)=>t+p.catches,0);
-  const totalRunOuts = s.reduce((t,p)=>t+p.runouts,0);
-  const totalStumpings = s.reduce((t,p)=>t+p.stumpings,0);
-  const totalFifties = s.reduce((t,p)=>t+p.fifties,0);
-  const totalHundreds = s.reduce((t,p)=>t+p.hundreds,0);
-  const totalSixes = s.reduce((t,p)=>t+p.sixes,0);
-  const totalFours = s.reduce((t,p)=>t+p.fours,0);
-  const total2W = s.reduce((t,p)=>t+p.w2,0);
-  const total3W = s.reduce((t,p)=>t+p.w3,0);
-  const total4W = s.reduce((t,p)=>t+p.w4,0);
-
-  // Chase vs Set
-  const chaseM = m.filter(x=>(x.toss_won==='them'&&x.toss_decision==='bat')||(x.toss_won==='us'&&x.toss_decision==='field'));
-  const setM   = m.filter(x=>(x.toss_won==='us'&&x.toss_decision==='bat')||(x.toss_won==='them'&&x.toss_decision==='field'));
-  const chaseW = chaseM.filter(x=>x.result==='win').length;
-  const setW   = setM.filter(x=>x.result==='win').length;
-  const chasePct = chaseM.length ? Math.round(chaseW/chaseM.length*100) : 0;
-  const setPct   = setM.length   ? Math.round(setW/setM.length*100)     : 0;
-
-  // Toss analysis
-  const tossWonM = m.filter(x=>x.toss_won==='us');
-  const tossWonW = tossWonM.filter(x=>x.result==='win').length;
-  const tossLostW = m.filter(x=>x.toss_won==='them'&&x.result==='win').length;
-  const tossLostM = m.filter(x=>x.toss_won==='them').length;
-
-  // Opponent records
-  const opponents = {};
-  m.forEach(x => {
-    if (!opponents[x.opponent]) opponents[x.opponent] = { p:0, w:0 };
-    opponents[x.opponent].p++;
-    if (x.result==='win') opponents[x.opponent].w++;
-  });
-
-  // Stat box helper
-  const box = (label, val, color='var(--text)', sub='') =>
-    `<div style="background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;text-align:center">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">${label}</div>
-      <div style="font-size:24px;font-weight:700;font-family:'Barlow Condensed',sans-serif;color:${color}">${val}</div>
-      ${sub?`<div style="font-size:10.5px;color:var(--muted);margin-top:3px">${sub}</div>`:''}
-    </div>`;
-
-  // Opponent records table
-  const oppRows = Object.entries(opponents).sort((a,b)=>b[1].p-a[1].p)
-    .map(([opp,r]) => `<tr><td>${esc(opp)}</td><td class="mono">${r.p}</td><td class="mono">${r.w}</td><td class="mono">${r.p-r.w}</td><td class="mono">${Math.round(r.w/r.p*100)}%</td></tr>`).join('');
-
-  document.getElementById('team-body').innerHTML = `
-    <!-- Batting stats grid -->
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)">Batting</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">
-        ${box('Total Runs', totalRuns.toLocaleString(), 'var(--green)')}
-        ${box('Boundaries', totalFours, 'var(--blue)', `${totalFours} fours`)}
-        ${box('Sixes', totalSixes, 'var(--orange)')}
-        ${box('Fifties', totalFifties, 'var(--gold)')}
-        ${box('Hundreds', totalHundreds, 'var(--gold)')}
-        ${box('Squad Size', state.players.length, 'var(--muted)')}
-      </div>
-    </div>
-    <!-- Bowling stats grid -->
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)">Bowling</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">
-        ${box('Total Wickets', totalWkts, 'var(--orange)')}
-        ${box('2W Hauls', total2W, 'var(--gold)')}
-        ${box('3W Hauls', total3W, 'var(--orange)')}
-        ${box('4W Hauls', total4W, 'var(--red)')}
-      </div>
-    </div>
-    <!-- Fielding stats grid -->
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)">Fielding</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">
-        ${box('Catches', totalCatches, 'var(--blue)')}
-        ${box('Run Outs', totalRunOuts, 'var(--purple)')}
-        ${box('Stumpings', totalStumpings, 'var(--muted)')}
-        ${box('Total Dismissals', totalCatches+totalRunOuts+totalStumpings, 'var(--text)')}
-      </div>
-    </div>
-    <!-- Match analysis -->
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)">Match Patterns</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
-        ${box('Chasing W%', chasePct+'%', chasePct>=50?'var(--green)':'var(--red)', `${chaseW}/${chaseM.length} games`)}
-        ${box('Setting W%', setPct+'%', setPct>=50?'var(--green)':'var(--red)', `${setW}/${setM.length} games`)}
-        ${box('Toss Win → W%', tossWonM.length?Math.round(tossWonW/tossWonM.length*100)+'%':'-', 'var(--muted)', `${tossWonW}/${tossWonM.length}`)}
-        ${box('Toss Lose → W%', tossLostM?Math.round(tossLostW/tossLostM*100)+'%':'-', 'var(--muted)', `${tossLostW}/${tossLostM}`)}
-        ${box('Ties', ties, 'var(--gold)')}
-        ${box('Win Rate', m.length?Math.round(wins/m.length*100)+'%':'-', 'var(--green)', `${wins}W · ${losses}L`)}
-      </div>
-    </div>
-    <!-- Opponent records -->
-    <div class="tbl-wrap">
-      <div class="tbl-head"><span class="tbl-title">Opponent Records</span></div>
-      <table><thead><tr><th>Opponent</th><th>P</th><th>W</th><th>L</th><th>W%</th></tr></thead>
-      <tbody>${oppRows}</tbody></table>
-    </div>`;
-}
-
-// ============================================================
-// FEATURE 9: Tournament Squad
-// ============================================================
-let _tsSelectedPlayers = new Set();
-let _tsSavedSquads = [];
-let _tsEditIdx = -1;
-
-function renderPage_tourney_squad() {
-  _tsSavedSquads = state.tourneySquads || [];
-  const body = document.getElementById('tourney-squad-body');
-  if (!body) return;
-  if (!_tsSavedSquads.length) {
-    body.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No tournament squads yet — click "+ New Tournament Squad" to create one</div></div>';
-    return;
-  }
-  body.innerHTML = _tsSavedSquads.map((sq, i) => `
-    <div class="tbl-wrap" style="margin-bottom:14px">
-      <div class="tbl-head">
-        <span class="tbl-title">${esc(sq.name)} <span style="font-size:11px;font-weight:400;color:var(--muted)">${esc(sq.date||'')} · ${sq.players.length} players</span></span>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-sm btn-ghost" onclick="editTourneySquad(${i})">✏️ Edit</button>
-          <button class="btn btn-sm btn-primary" onclick="downloadJerseyListFor(${i})">⬇ Jersey List</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteTourneySquad(${i})">✕</button>
-        </div>
-      </div>
-      <div style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px">
-        ${sq.players.map(name => `<span style="background:var(--s3);border:1px solid var(--border);border-radius:5px;padding:2px 9px;font-size:12px">${esc(name)}</span>`).join('')}
-      </div>
-    </div>`).join('');
-}
-
-function openNewTourneySquad() {
-  _tsSelectedPlayers = new Set();
-  _tsEditIdx = -1;
-  document.getElementById('ts-name').value = '';
-  document.getElementById('ts-date').value = '';
-  document.getElementById('ts-modal-title').textContent = 'New Tournament Squad';
-  renderTsPlayerGrid();
-  showModal('modal-tourney-squad');
-}
-
-function editTourneySquad(i) {
-  const sq = state.tourneySquads[i];
-  _tsEditIdx = i;
-  _tsSelectedPlayers = new Set(sq.players);
-  document.getElementById('ts-name').value = sq.name;
-  document.getElementById('ts-date').value = sq.date || '';
-  document.getElementById('ts-modal-title').textContent = 'Edit Tournament Squad';
-  renderTsPlayerGrid();
-  showModal('modal-tourney-squad');
-}
-
-function deleteTourneySquad(i) {
-  if (!confirm('Delete this tournament squad?')) return;
-  state.tourneySquads.splice(i, 1);
-  saveState(); renderPage_tourney_squad();
-}
-
-function renderTsPlayerGrid() {
-  const grid = document.getElementById('ts-player-grid');
-  if (!grid) return;
-  grid.innerHTML = state.players.map(p => {
-    const sel = _tsSelectedPlayers.has(p.name);
-    return `<div onclick="toggleTsPlayer('${esc(p.name)}')" style="display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:6px;cursor:pointer;border:1px solid ${sel?'var(--green)':'var(--border)'};background:${sel?'var(--green-dim)':'var(--s1)'}">
-      <div style="width:14px;height:14px;border-radius:3px;border:1.5px solid ${sel?'var(--green)':'var(--border)'};background:${sel?'var(--green)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:9px;color:#000;flex-shrink:0">${sel?'✓':''}</div>
-      <div>
-        <div style="font-size:12px;font-weight:500">${esc(p.name)}</div>
-        <div style="font-size:10px;color:var(--muted)">${esc(p.role||'Player')} · #${p.jersey_num||'?'}</div>
-      </div>
-    </div>`;
-  }).join('');
-  const countEl = document.getElementById('ts-count');
-  if (countEl) countEl.textContent = `(${_tsSelectedPlayers.size} selected)`;
-}
-
-function toggleTsPlayer(name) {
-  if (_tsSelectedPlayers.has(name)) _tsSelectedPlayers.delete(name);
-  else _tsSelectedPlayers.add(name);
-  renderTsPlayerGrid();
-}
-
-function tsSelectAll() { state.players.forEach(p => _tsSelectedPlayers.add(p.name)); renderTsPlayerGrid(); }
-function tsClearAll()  { _tsSelectedPlayers.clear(); renderTsPlayerGrid(); }
-
-function saveTourneySquad() {
-  const name = document.getElementById('ts-name').value.trim();
-  if (!name) { toast('Enter tournament name', 'error'); return; }
-  if (!state.tourneySquads) state.tourneySquads = [];
-  const sq = { name, date: document.getElementById('ts-date').value.trim(), players: [..._tsSelectedPlayers] };
-  if (_tsEditIdx >= 0) state.tourneySquads[_tsEditIdx] = sq;
-  else state.tourneySquads.push(sq);
-  saveState(); closeModal('modal-tourney-squad'); renderPage_tourney_squad();
-  toast('Squad saved', 'success');
-}
-
-function downloadJerseyList() {
-  const i = _tsEditIdx >= 0 ? _tsEditIdx : (state.tourneySquads||[]).length;
-  saveTourneySquad();
-  downloadJerseyListFor(i < (state.tourneySquads||[]).length ? i : (state.tourneySquads||[]).length - 1);
-}
-
-function downloadJerseyListFor(i) {
-  const sq = state.tourneySquads[i];
-  if (!sq) return;
-  const headers = ['Jersey Number','Player Name','Jersey Name (on shirt)','Jersey Size','Track Size','Sleeve Preference'];
-  const rows = [headers.join(',')];
-  sq.players.forEach(name => {
-    const p = state.players.find(x => x.name === name) || {};
-    rows.push([
-      p.jersey_num||'',
-      name,
-      p.jersey_name||'',
-      p.jersey_size||'',
-      p.track_size||'',
-      p.sleeves||''
-    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
-  });
-  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = sq.name.replace(/\s+/g,'_') + '_JerseyList.csv'; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 1000);
-  toast('Jersey list downloaded', 'success');
 }
 
 
